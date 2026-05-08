@@ -94,26 +94,49 @@ criterion = nn.CrossEntropyLoss()
 optimizer = optim.Adam(net.parameters(), lr=0.001)
 
 dati = []
+dati_loss = []
+dati_accuracy = []
 for epoch in range(50):  # loop over the dataset multiple times
-
+    correct = 0
+    total = 0
+    loss_total = 0
     running_loss = 0.0
     for i, data in enumerate(train_loader, 0):
         features, labels = data
-        optimizer.zero_grad()
-        # forward + backward + optimize
         outputs = net(features)
+        _, predicted = torch.max(outputs, 1)
+        total += labels.size(0)
+        correct += (predicted == labels).sum().item()
         loss = criterion(outputs, labels)
         loss.backward()
         optimizer.step()
         # print statistics
+        loss_total += loss.item()
         running_loss += loss.item()
-        if i % 4 == 3:    # print every 500 mini-batches
+        if i % 4 == 3:  # print every 500 mini-batches
             print(f'[{epoch + 1}, {i + 1:5d}] loss: {running_loss / 4:.3f}')
             dati.append((epoch, running_loss / 4))
             running_loss = 0.0
+        accuracy = correct / total
+        loss_media = loss_total / len(test_loader)
+        dati_loss.append((epoch, accuracy))
+        dati_accuracy.append((epoch, loss_media))
+
 print('Finished Training')
 
-with open("Dati_Training.csv", mode='w', newline="") as f:
+with open("Dati_Training_loss.csv", mode='w', newline="") as f:
+    writer = csv.writer(f)
+    writer.writerow(['epoch', 'loss'])
+    for s in dati:
+        writer.writerow([s[0], s[1]])
+    #writer.writerow(dati)
+with open("Dati_Training_total_loss.csv", mode='w', newline="") as f:
+    writer = csv.writer(f)
+    writer.writerow(['epoch', 'loss'])
+    for s in dati:
+        writer.writerow([s[0], s[1]])
+    #writer.writerow(dati)
+with open("Dati_Training_accuracy.csv", mode='w', newline="") as f:
     writer = csv.writer(f)
     writer.writerow(['epoch', 'loss'])
     for s in dati:
@@ -154,6 +177,9 @@ total = 0
 
 
 for epoch in range(50):  # loop over the dataset multiple times
+    correct = 0
+    total = 0
+    loss_total = 0
     running_loss = 0.0
     for i, data in enumerate(test_loader, 0):
         features, labels = data
@@ -165,17 +191,34 @@ for epoch in range(50):  # loop over the dataset multiple times
         loss.backward()
         optimizer.step()
         # print statistics
+        loss_total +=loss.item()
         running_loss += loss.item()
         if i % 4 == 3:    # print every 500 mini-batches
             print(f'[{epoch + 1}, {i + 1:5d}] loss: {running_loss / 4:.3f}')
             dati.append((epoch, running_loss / 4))
             running_loss = 0.0
+        accuracy = correct / total
+        loss_media = loss_total / len(test_loader)
+        dati_loss.append((epoch, accuracy))
+        dati_accuracy.append((epoch, loss_media))
 
 print(f'Accuracy of the network on the 169 test images: {100 * correct // total} %')
-with open("Dati_Test.csv", mode='w', newline="") as f:
+with open("Dati_Test_loss.csv", mode='w', newline="") as f:
     writer = csv.writer(f)
     writer.writerow(['epoch', 'loss'])
     for s in dati:
+        writer.writerow([s[0], s[1]])
+    #writer.writerow(dati)
+with open("Dati_Test_total_loss.csv", mode='w', newline="") as f:
+    writer = csv.writer(f)
+    writer.writerow(['epoch', 'loss'])
+    for s in dati_loss:
+        writer.writerow([s[0], s[1]])
+    #writer.writerow(dati)
+with open("Dati_Test_accuracy.csv", mode='w', newline="") as f:
+    writer = csv.writer(f)
+    writer.writerow(['epoch', 'loss'])
+    for s in dati_accuracy:
         writer.writerow([s[0], s[1]])
     #writer.writerow(dati)
 
