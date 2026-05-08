@@ -59,8 +59,6 @@ plt.ylabel("loss")
 plt.title("Grafico da dati di test --> la loss function totale di ogni epoch")
 plt.grid(True)
 plt.show()
-plt.grid(True)
-plt.show()
 
 with open("Dati_Training_accuracy.csv", mode="r") as f:
     reader = csv.DictReader(f)
@@ -73,8 +71,6 @@ plt.plot(x_vals, y_vals, marker="o")
 plt.xlabel("epoch")
 plt.ylabel("loss")
 plt.title("Grafico da dati di training --> l'accuracy di ogni epoch")
-plt.grid(True)
-plt.show()
 plt.grid(True)
 plt.show()
 

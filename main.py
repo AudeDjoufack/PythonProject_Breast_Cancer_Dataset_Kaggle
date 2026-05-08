@@ -117,10 +117,10 @@ for epoch in range(50):  # loop over the dataset multiple times
             print(f'[{epoch + 1}, {i + 1:5d}] loss: {running_loss / 4:.3f}')
             dati0.append((epoch, running_loss / 4))
             running_loss = 0.0
-        accuracy = correct / total
-        loss_media = loss_total / len(test_loader)
-        dati_loss0.append((epoch, accuracy))
-        dati_accuracy0.append((epoch, loss_media))
+    accuracy = correct / total
+    loss_media = loss_total / len(test_loader)
+    dati_loss0.append((epoch, accuracy))
+    dati_accuracy0.append((epoch, loss_media))
 
 print('Finished Training')
 
@@ -199,10 +199,10 @@ for epoch in range(50):  # loop over the dataset multiple times
             print(f'[{epoch + 1}, {i + 1:5d}] loss: {running_loss / 4:.3f}')
             dati1.append((epoch, running_loss / 4))
             running_loss = 0.0
-        accuracy = correct / total
-        loss_media = loss_total / len(test_loader)
-        dati_loss1.append((epoch, accuracy))
-        dati_accuracy1.append((epoch, loss_media))
+    accuracy = correct / total
+    loss_media = loss_total / len(test_loader)
+    dati_loss1.append((epoch, accuracy))
+    dati_accuracy1.append((epoch, loss_media))
 
 print(f'Accuracy of the network on the 169 test images: {100 * correct // total} %')
 with open("Dati_Test_loss.csv", mode='w', newline="") as f:
