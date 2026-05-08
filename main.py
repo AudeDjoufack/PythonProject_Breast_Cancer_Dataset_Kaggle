@@ -1,3 +1,5 @@
+import csv
+
 import torch
 import torchvision
 import torch.optim as optim
@@ -91,6 +93,7 @@ net = Net(num_features=df.shape[1] - 1, num_classes=2)
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.Adam(net.parameters(), lr=0.001)
 
+dati = []
 for epoch in range(50):  # loop over the dataset multiple times
 
     running_loss = 0.0
@@ -106,8 +109,14 @@ for epoch in range(50):  # loop over the dataset multiple times
         running_loss += loss.item()
         if i % 4 == 3:    # print every 500 mini-batches
             print(f'[{epoch + 1}, {i + 1:5d}] loss: {running_loss / 4:.3f}')
+            dati.append((epoch, running_loss / 4))
             running_loss = 0.0
 print('Finished Training')
+
+with open("Dati_Training.csv", mode='w', newline="") as f:
+    writer = csv.writer(f)
+    writer.writerow(['epoch', 'loss'])
+    writer.writerow(dati)
 
 PATH = './eco_net.pth'
 torch.save(net.state_dict(), PATH)
@@ -131,15 +140,33 @@ print('Predicted: ', ' '.join(f'{classes[predicted[j]]:5s}'
 correct = 0
 total = 0
 # since we're not training, we don't need to calculate the gradients for our outputs
-with torch.no_grad():
-    for data in test_loader:
+#with torch.no_grad():
+#   for data in test_loader:
+#        features, labels = data
+#        # calculate outputs by running images through the network
+#        outputs = net(features)
+#        # the class with the highest energy is what we choose as prediction
+#        _, predicted = torch.max(outputs, 1)
+#        total += labels.size(0)
+#        correct += (predicted == labels).sum().item()
+
+
+for epoch in range(50):  # loop over the dataset multiple times
+    running_loss = 0.0
+    for i, data in enumerate(test_loader, 0):
         features, labels = data
-        # calculate outputs by running images through the network
         outputs = net(features)
-        # the class with the highest energy is what we choose as prediction
         _, predicted = torch.max(outputs, 1)
         total += labels.size(0)
         correct += (predicted == labels).sum().item()
+        loss = criterion(outputs, labels)
+        loss.backward()
+        optimizer.step()
+        # print statistics
+        running_loss += loss.item()
+        if i % 4 == 3:    # print every 500 mini-batches
+            print(f'[{epoch + 1}, {i + 1:5d}] loss: {running_loss / 4:.3f}')
+            running_loss = 0.0
 
 print(f'Accuracy of the network on the 169 test images: {100 * correct // total} %')
 
