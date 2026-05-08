@@ -116,7 +116,9 @@ print('Finished Training')
 with open("Dati_Training.csv", mode='w', newline="") as f:
     writer = csv.writer(f)
     writer.writerow(['epoch', 'loss'])
-    writer.writerow(dati)
+    for s in dati:
+        writer.writerow([s[0], s[1]])
+    #writer.writerow(dati)
 
 PATH = './eco_net.pth'
 torch.save(net.state_dict(), PATH)
@@ -166,9 +168,16 @@ for epoch in range(50):  # loop over the dataset multiple times
         running_loss += loss.item()
         if i % 4 == 3:    # print every 500 mini-batches
             print(f'[{epoch + 1}, {i + 1:5d}] loss: {running_loss / 4:.3f}')
+            dati.append((epoch, running_loss / 4))
             running_loss = 0.0
 
 print(f'Accuracy of the network on the 169 test images: {100 * correct // total} %')
+with open("Dati_Test.csv", mode='w', newline="") as f:
+    writer = csv.writer(f)
+    writer.writerow(['epoch', 'loss'])
+    for s in dati:
+        writer.writerow([s[0], s[1]])
+    #writer.writerow(dati)
 
 # prepare to count predictions for each class
 correct_pred = {classname: 0 for classname in classes}
