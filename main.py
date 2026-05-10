@@ -258,5 +258,3 @@ for classname, correct_count in correct_pred.items():
 print(device)
 
 net.to(device)
-
-inputs, labels = data[0].to(device), data[1].to(device)
