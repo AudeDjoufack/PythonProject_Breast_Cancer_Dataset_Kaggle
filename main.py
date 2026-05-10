@@ -96,7 +96,7 @@ optimizer = optim.Adam(net.parameters(), lr=0.001)
 dati0 = []
 dati_loss0 = []
 dati_accuracy0 = []
-for epoch in range(50):  # loop over the dataset multiple times
+for epoch in range(10):  # loop over the dataset multiple times
     correct = 0
     total = 0
     loss_total = 0
@@ -178,7 +178,7 @@ total = 0
 dati1 = []
 dati_loss1 = []
 dati_accuracy1 = []
-for epoch in range(50):  # loop over the dataset multiple times
+for epoch in range(15):  # loop over the dataset multiple times
     correct = 0
     total = 0
     loss_total = 0
