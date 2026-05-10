@@ -1,5 +1,5 @@
-import csv
 
+import csv
 import torch
 import torchvision
 import torch.optim as optim
@@ -11,6 +11,8 @@ from torch.utils.data import Dataset
 from torch.utils.data import DataLoader
 from torch.utils.data import Subset
 from torch.utils.data import random_split
+
+device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
 print(os.path.exists("Data/Breast_cancer_dataset.csv"))
 csv_file = "Data/Breast_cancer_dataset.csv"
@@ -92,17 +94,20 @@ net = Net(num_features=df.shape[1] - 1, num_classes=2)
 
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.Adam(net.parameters(), lr=0.001)
-
+net.train() #mette la rete neurale in modalità training in PyTorch.
 dati0 = []
 dati_loss0 = []
 dati_accuracy0 = []
-for epoch in range(10):  # loop over the dataset multiple times
+for epoch in range(50):  # loop over the dataset multiple times
     correct = 0
     total = 0
     loss_total = 0
     running_loss = 0.0
     for i, data in enumerate(train_loader, 0):
         features, labels = data
+        features = features.to(device)
+        labels = labels.to(device)
+        optimizer.zero_grad()
         outputs = net(features)
         _, predicted = torch.max(outputs, 1)
         total += labels.size(0)
@@ -118,9 +123,9 @@ for epoch in range(10):  # loop over the dataset multiple times
             dati0.append((epoch, running_loss / 4))
             running_loss = 0.0
     accuracy = correct / total
-    loss_media = loss_total / len(test_loader)
-    dati_loss0.append((epoch, accuracy))
-    dati_accuracy0.append((epoch, loss_media))
+    loss_media = loss_total / len(train_loader)
+    dati_loss0.append((epoch, loss_media))
+    dati_accuracy0.append((epoch, accuracy))
 
 print('Finished Training')
 
@@ -161,7 +166,7 @@ _, predicted = torch.max(outputs, 1)
 
 print('Predicted: ', ' '.join(f'{classes[predicted[j]]:5s}'
                               for j in range(4)))
-
+net.eval() #mette la rete neurale in modalità evaluation/testing in PyTorch.
 correct = 0
 total = 0
 # since we're not training, we don't need to calculate the gradients for our outputs
@@ -178,31 +183,32 @@ total = 0
 dati1 = []
 dati_loss1 = []
 dati_accuracy1 = []
-for epoch in range(15):  # loop over the dataset multiple times
-    correct = 0
-    total = 0
-    loss_total = 0
-    running_loss = 0.0
-    for i, data in enumerate(test_loader, 0):
-        features, labels = data
-        outputs = net(features)
-        _, predicted = torch.max(outputs, 1)
-        total += labels.size(0)
-        correct += (predicted == labels).sum().item()
-        loss = criterion(outputs, labels)
-        loss.backward()
-        optimizer.step()
-        # print statistics
-        loss_total +=loss.item()
-        running_loss += loss.item()
-        if i % 4 == 3:    # print every 500 mini-batches
-            print(f'[{epoch + 1}, {i + 1:5d}] loss: {running_loss / 4:.3f}')
-            dati1.append((epoch, running_loss / 4))
-            running_loss = 0.0
-    accuracy = correct / total
-    loss_media = loss_total / len(test_loader)
-    dati_loss1.append((epoch, accuracy))
-    dati_accuracy1.append((epoch, loss_media))
+with torch.no_grad():
+ for epoch in range(50):  # loop over the dataset multiple times
+     correct = 0
+     total = 0
+     loss_total = 0
+     running_loss = 0.0
+     for i, data in enumerate(test_loader, 0):
+         features, labels = data
+         features = features.to(device)
+         labels = labels.to(device)
+         outputs = net(features)
+         _, predicted = torch.max(outputs, 1)
+         total += labels.size(0)
+         correct += (predicted == labels).sum().item()
+         loss = criterion(outputs, labels)
+         # print statistics
+         loss_total +=loss.item()
+         running_loss += loss.item()
+         if i % 4 == 3:    # print every 500 mini-batches
+             print(f'[{epoch + 1}, {i + 1:5d}] loss: {running_loss / 4:.3f}')
+             dati1.append((epoch, running_loss / 4))
+             running_loss = 0.0
+     accuracy = correct / total
+     loss_media = loss_total / len(test_loader)
+     dati_loss1.append((epoch, accuracy))
+     dati_accuracy1.append((epoch, loss_media))
 
 print(f'Accuracy of the network on the 169 test images: {100 * correct // total} %')
 with open("Dati_Test_loss.csv", mode='w', newline="") as f:
@@ -246,8 +252,6 @@ print(total_pred)
 for classname, correct_count in correct_pred.items():
     accuracy = 100 * float(correct_count) / total_pred[classname]
     print(f'Accuracy for class: {classname:5s} is {accuracy:.1f} %')
-
-device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
 # Assuming that we are on a CUDA machine, this should print a CUDA device:
 
